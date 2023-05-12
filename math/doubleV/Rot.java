@@ -51,7 +51,7 @@ public class Rot {
 	 * @return this rotation as an array of 4 numbers corresponding to the W (aka scalar), X, Y, and Z values in that order.
 	 */
 	public double[] toArray() {
-		return this.toArray();
+		return rotation.toArray();
 	}
 	
 	/**

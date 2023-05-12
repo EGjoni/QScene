@@ -167,6 +167,7 @@ public class QCP {
 	 *            a weight in the inclusive range [0,1] for each point
 	 */
 	public <V extends Vec3d<?>> void set(V[] moved, V[] target, double[] weight, boolean translate) {
+		wsum = 0d;
 		this.target = target;
 		this.moved = moved;
 		this.weight = weight;
@@ -177,7 +178,7 @@ public class QCP {
 		targetCenter.set(0,0,0);
 
 		if (translate) {
-			moveToWeightedCenter(this.moved, weight, movedCenter);
+			moveToWeightedCenter(this.moved, null, movedCenter);
 			wsum = 0d; // set wsum to 0 so we don't double up.
 			moveToWeightedCenter(this.target, weight, targetCenter);
 			translate(movedCenter.multCopy(-1d), this.moved);

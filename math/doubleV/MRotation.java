@@ -197,91 +197,10 @@ public class MRotation {
 		}
 	}
 	
-	
-	
-	/** Build a rotation from a 3X3 given as a 1d array with 9 elements, 
-	 * or 4x4 matrix given as a 1d array with 16 elements. 
-	 * This constructor will detect the appropriate case based on the length 
-	 * of the input array. 
-	 * Input array should be in column major order, so, for a 3x3 matrix, the
-	 * indices correspond as follows: <br/> 
-	 * 0, 3, 6 <br/>  
-	 * 1, 4, 7 <br/> 
-	 * 2, 5, 8 <br/>
-	 *
-	 *And for a 4x4 matrix the indices are: 
-	 * <br/> 
-	 * 0,  4,  8,  12 <br/>  
-	 * 1,  5,  9,  13 <br/> 
-	 * 2,  6, 10, 14 <br/>
- 	 * 3,  7, 11, 15 <br/>
-	 *
-	 *
-	 * <p>Rotation matrices are orthogonal matrices, i.e. unit matrices
-	 * (which are matrices for which m.m<sup>T</sup> = I) with real
-	 * coefficients. The module of the determinant of unit matrices is
-	 * 1, among the orthogonal 3X3 matrices, only the ones having a
-	 * positive determinant (+1) are rotation matrices.</p>
-	 * <p>When a rotation is defined by a matrix with truncated values
-	 * (typically when it is extracted from a technical sheet where only
-	 * four to five significant digits are available), the matrix is not
-	 * orthogonal anymore. This constructor handles this case
-	 * transparently by using a copy of the given matrix and applying a
-	 * correction to the copy in order to perfect its orthogonality. If
-	 * the Frobenius norm of the correction needed is above the given
-	 * threshold, then the matrix is considered to be too far from a
-	 * true rotation matrix and an exception is thrown.<p>
-	 * @param m rotation matrix
-	 * @param is4x4 set to true if passing in a 4x4 matrix. 
-	 * @param threshold convergence threshold for the iterative
-	 * orthogonality correction (convergence is reached when the
-	 * difference between two steps of the Frobenius norm of the
-	 * correction is below this threshold)
-	 * @exception NotARotationMatrixException if the matrix is not a 3X3
-	 * matrix, or if it cannot be transformed into an orthogonal matrix
-	 * with the given threshold, or if the determinant of the resulting
-	 * orthogonal matrix is negative
-	 */
-	public MRotation(double[] m, double threshold)
-			throws NotARotationMatrixException {
-
-		// dimension check
-		if ((m.length != 9 || m.length != 16)) {
-			throw new NotARotationMatrixException(
-					LocalizedFormats.ROTATION_MATRIX_DIMENSIONS,
-					m.length);
-		}
-
-		double[][] im = new double[3][3];
-		if(m.length == 9) {
-			im[0][0] = m[0]; im[0][1] = m[0];  im[0][2] = m[0];
-			im[0][0] = m[0]; im[0][1] = m[0];  im[0][2] = m[0];
-			im[0][0] = m[0]; im[0][1] = m[0];  im[0][2] = m[0];
-		}
-		
-		// compute a "close" orthogonal matrix
-		double[][] ort = orthogonalizeMatrix(im, threshold);
-
-		// check the sign of the determinant
-		double det = ort[0][0] * (ort[1][1] * ort[2][2] - ort[2][1] * ort[1][2]) -
-				ort[1][0] * (ort[0][1] * ort[2][2] - ort[2][1] * ort[0][2]) +
-				ort[2][0] * (ort[0][1] * ort[1][2] - ort[1][1] * ort[0][2]);
-		if (det < 0.0) {
-			try {
-				throw new Exception("Closest Orthogonal Has Negative Determinant");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace(System.out);
-			}
-		}
-
-		double[] quat = mat2quat(ort);
-		q0 = quat[0];
-		q1 = quat[1];
-		q2 = quat[2];
-		q3 = quat[3];
-
+	public MRotation(double[][] m, double threshold) throws NotARotationMatrixException {
+		matInit(m, threshold, false);
 	}
+	
 
 	/** Build a rotation from a 3X3 matrix.
 	 * <p>Rotation matrices are orthogonal matrices, i.e. unit matrices
@@ -308,7 +227,12 @@ public class MRotation {
 	 * with the given threshold, or if the determinant of the resulting
 	 * orthogonal matrix is negative
 	 */
-	public MRotation(double[][] m, double threshold)
+	public MRotation(double[][] m, double threshold, boolean detChecked)
+			throws NotARotationMatrixException {
+			matInit(m, threshold, detChecked);
+	}
+	
+	private void matInit(double[][] m, double threshold, boolean detChecked) 
 			throws NotARotationMatrixException {
 
 		// dimension check
@@ -318,19 +242,20 @@ public class MRotation {
 					LocalizedFormats.ROTATION_MATRIX_DIMENSIONS,
 					m.length, m[0].length);
 		}
-
 		// compute a "close" orthogonal matrix
 		double[][] ort = orthogonalizeMatrix(m, threshold);
 
 		// check the sign of the determinant
-		double det = ort[0][0] * (ort[1][1] * ort[2][2] - ort[2][1] * ort[1][2]) -
-				ort[1][0] * (ort[0][1] * ort[2][2] - ort[2][1] * ort[0][2]) +
-				ort[2][0] * (ort[0][1] * ort[1][2] - ort[1][1] * ort[0][2]);
-		if (det < 0.0) {
-			try {
-				throw new Exception("Closest Orthogonal Has Negative Determinant");
-			} catch (Exception e) {
-				e.printStackTrace(System.out);
+		if(!detChecked) {
+			double det = ort[0][0] * (ort[1][1] * ort[2][2] - ort[2][1] * ort[1][2]) -
+					ort[1][0] * (ort[0][1] * ort[2][2] - ort[2][1] * ort[0][2]) +
+					ort[2][0] * (ort[0][1] * ort[1][2] - ort[1][1] * ort[0][2]);
+			if (det < 0.0) {
+				try {
+					throw new Exception("Closest Orthogonal Has Negative Determinant");
+				} catch (Exception e) {
+					e.printStackTrace(System.out);
+				}
 			}
 		}
 
@@ -339,7 +264,6 @@ public class MRotation {
 		q1 = quat[1];
 		q2 = quat[2];
 		q3 = quat[3];
-
 	}
 
 	/** Build the rotation that transforms a pair of vector into another pair.

@@ -20,6 +20,8 @@ public abstract class AbstractBasis {
 	public static final int X = 0;
 	public static final int Y = 1;
 	public static final int Z = 2;
+	protected boolean initialized = false;
+	
 	
 	public Rot rotation = new Rot();
 	public Rot inverseRotation = new Rot();

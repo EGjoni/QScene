@@ -4,7 +4,6 @@ import asj.LoadManager;
 import asj.data.JSONObject;
 
 public class CartesianAxes extends AbstractAxes {
-
 	
 	public CartesianAxes(AbstractBasis globalBasis, AbstractAxes parent) {
 		super(globalBasis, parent);
@@ -15,6 +14,7 @@ public class CartesianAxes extends AbstractAxes {
 		createTempVars(origin);
 
 		areGlobal = true;		
+		forceOrthoNormality = true;
 
 		localMBasis = new CartesianBasis(origin, inX, inY, inZ);
 		globalMBasis = new CartesianBasis(origin, inX, inY, inZ);
@@ -84,7 +84,7 @@ public class CartesianAxes extends AbstractAxes {
 			newBasis, 
 			null); 	
 	}
-
+	
 	@Override
 	public AbstractAxes freeCopy() {
 		AbstractAxes freeCopy = 
@@ -95,6 +95,7 @@ public class CartesianAxes extends AbstractAxes {
 		freeCopy.updateGlobal();
 		return freeCopy;
 	}
+	
 	@Override 
 	public void loadFromJSONObject(JSONObject j, LoadManager l) {	
 		super.loadFromJSONObject(j, l);

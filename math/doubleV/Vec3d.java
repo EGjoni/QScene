@@ -79,6 +79,13 @@ public abstract class Vec3d<T extends Vec3d<T>> implements Vecd<T>, CanLoad {
 	public T set (final double[] values) {
 		return this.set(values[0], values[1], values[2]);
 	}
+	
+	/**
+	 * @return the components as an array
+	 */
+	public double[] get() {
+		return new double[] {getX(), getY(), getZ()};
+	}
 
 	/** Sets the components from the given spherical coordinate
 	 * @param azimuthalAngle The angle between x-axis in radians [0, 2pi]

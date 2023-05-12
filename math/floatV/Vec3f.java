@@ -497,7 +497,7 @@ public abstract class Vec3f<T extends Vec3f<T>> implements Vecf<T>, CanLoad {
 	 * @return a string representation of this object. */
 	@Override
 	public String toString () {
-		return "(" +(float) x + "," + (float)y + "," + (float)z + ")";
+		return "(" +String.format("%." + 4 + "f", x) + "," + String.format("%." + 4 + "f", y)  + "," +String.format("%." + 4 + "f", z)  + ")";
 	}
 
 

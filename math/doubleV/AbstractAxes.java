@@ -34,8 +34,7 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 
 	private int slipType = 0;
 	public boolean dirty = true;
-	
-	//public boolean forceOrthoNormality = true; 
+	public boolean forceOrthoNormality = true; 
 	
 
 	//public LinkedList<DependencyReference<AxisDependency>> dependentsRegistry = new LinkedList<DependencyReference<AxisDependency>>(); 
@@ -61,11 +60,11 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 	public <V extends Vec3d<?>> AbstractAxes(AbstractBasis globalBasis, AbstractAxes parent) {
 		this.globalMBasis = globalBasis.copy(); 
 		createTempVars(globalBasis.getOrigin());
-		if(this.getParentAxes() != null)
+		this.localMBasis = globalBasis.copy();
+		if(parent != null)
 			setParent(parent);
 		else {
-			this.areGlobal = true;
-			this.localMBasis = globalBasis.copy();
+			this.areGlobal = true;			
 		}
 		
 		this.updateGlobal();				
@@ -538,6 +537,10 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 
 	/**
 	 * Rotates the bases around their origin in global coordinates
+	 * this means if your rotation specifies 10 degrees about the X axis, the element will be rotated by 10 degrees about the identity transform's X axis,
+	 * in the direction going from the identity transform's Y axis toward the identity transform's Z axis. 
+	 * positive rotation about Y goes in the direction from Z toward X
+	 * positive rotation about Z goes in the direction from X toward Y   
 	 * @param rotation
 	 */
 	public void rotateBy(Rot apply) {
@@ -554,14 +557,18 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 	}
 
 	/**
-	 * rotates the bases around their origin in Local coordinates
+	 * rotates the bases around their origin in Local coordinates.
+	 * this means if you rotation specifies 10 degrees about the X axis, the element will be rotated by 10 degrees about its parent's X axis, in the direction
+	 * going from the parent's Y axis toward the parent's Z axis. 
+	 * positive rotation about Y goes in the direction from Z toward X
+	 * positive rotation about Z goes in the direction from X toward Y   
 	 * @param rotation
 	 */
 	public void rotateByLocal(Rot apply) {
 		this.updateGlobal();		
-		if(parent != null) {
+		//if(parent != null) {
 			this.getLocalMBasis().rotateBy(apply);
-		}
+		//}
 		this.markDirty(); 
 	}
 	
@@ -928,8 +935,15 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 			this.markDependentsDirty();			
 		}		
 	}
-
 	
+	/**
+	 * like markdirty, sets a flag indicating this Axes globalBasis needs updating, 
+	 * unlike markdirty, does not inform descendants. 
+	 * (you should only use this if you know what you're doing and you're trying to squeeze out every last drop of performance)
+	 */
+	public void _exclusiveMarkDirty() {
+		this.dirty = true;
+	}
 
 	public String toString() {
 		this.updateGlobal();
