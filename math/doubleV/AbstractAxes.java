@@ -91,8 +91,8 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 	 */
 	public AbstractAxes(Vec3d<?> origin, Vec3d<?> inX, Vec3d<?> inY, Vec3d<?> inZ, AbstractAxes parent, boolean customBases) {
 		if(!customBases) {
-			globalMBasis = parent != null ? parent.getGlobalMBasis().copy() : new AffineBasis(origin);
-			localMBasis = parent != null ? parent.getLocalMBasis().copy() : new AffineBasis(origin);
+			globalMBasis = parent != null ? parent.getGlobalMBasis().copy() : new CartesianBasis(origin);
+			localMBasis = parent != null ? parent.getLocalMBasis().copy() : new CartesianBasis(origin);
 			globalMBasis.setIdentity();
 			localMBasis.setIdentity();
 		}		
@@ -602,7 +602,7 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 	}
 
 	/**
-	 * rotates and translates the axes back to its parent, but maintains 
+	 * rotates the axes back to its parent, but maintains 
 	 * its shear, translate and scale attributes.
 	 */
 	public void rotateToParent() {
@@ -932,8 +932,8 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 	public void markDirty() {		
 		if(!this.dirty) {			
 			this.dirty = true;
-			this.markDependentsDirty();			
-		}		
+			this.markDependentsDirty();
+		}
 	}
 	
 	/**

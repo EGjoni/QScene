@@ -102,8 +102,4 @@ public class SGVec_3f extends Vec3f<SGVec_3f> implements CanLoad {
 		j.setJSONArray("vec", components); 
 		return j;
 	}
-
-
-
-
 }
