@@ -237,6 +237,36 @@ public interface Vecf<T extends Vecf<T>> extends Vec<T> {
 	 */
 	public float getZ();
 	
+	@Override
+	public default float getXf() {
+		return this.getX();
+	}
+
+	@Override
+	public default float getYf() {
+		return this.getY();
+	}
+
+	@Override
+	public default float getZf() {
+		return this.getZ();
+	}
+
+	@Override
+	public default double getXd() {
+		return (double)this.getX();
+	}
+
+	@Override
+	public default double getYd() {
+		return this.getY();
+	}
+
+	@Override
+	public default double getZd() {
+		return this.getZ();
+	}
+	
 	
 	/**
 	 * @return a copy of this Vector cast to a single precision analog.

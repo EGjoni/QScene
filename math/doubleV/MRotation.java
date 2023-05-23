@@ -65,6 +65,10 @@ public class MRotation {
 	public MRotation(double q0, double q1, double q2, double q3) {
 		this(q0,q1,q2,q3,false);
 	}
+	
+	public MRotation(double[] quatVals) {
+		this(quatVals[0], quatVals[1], quatVals[2], quatVals[3]);
+	}
 
 
 
@@ -684,7 +688,30 @@ public class MRotation {
 				-q3 / squareNorm);
 	}
 
+	
+	public void clampToScaledAngleOf(MRotation R1, double s) {
+	    // Calculate the new scalar part (w) for the clamped quaternion
+		this.setAngle(R1.getAngle() * s);
+	    /*double newW = R1.q0 + (s * (1d-(R1.q0)));
 
+	    // Calculate the current and new coefficients for the vector parts
+	    double newCoeff = 1 - newW * newW;
+	    double currentCoeff = q1 * q1 + q2 * q2 + q3 * q3;
+
+	    // Check if the new coefficient is greater than or equal to the current one
+	    if (newCoeff >= currentCoeff) {
+	        return;
+	    } else {
+	        // Update the scalar part
+	        q0 = q0 < 0 ? -newW : newW;
+
+	        // Calculate and apply the composite coefficient
+	        double compositeCoeff = Math.sqrt(newCoeff / currentCoeff);
+	        q1 *= compositeCoeff;
+	        q2 *= compositeCoeff;
+	        q3 *= compositeCoeff;
+	    }*/
+	}
 
 	/** Get the angle of the rotation.
 	 * @return angle of the rotation (between 0 and &pi;)
@@ -697,6 +724,19 @@ public class MRotation {
 			return 2 * Math.acos(-q0);
 		}		
 		return 2 * Math.acos(q0);
+	}
+	
+	/** Not as stable as getAngle, but distinguishes between long and short rotation paths
+	 * @return angle of the rotation (between 0 and &pi;)
+	 * @see #Rotation(T , double)
+	 */
+	public double getFullAngle() {
+		return 2 * Math.acos(q0);
+	}
+	
+	/**sets the scalar component**/
+	public void setQ0(double d) {
+		this.q0 = d;
 	}
 
 	/** Get the Cardan or Euler angles corresponding to the instance.
@@ -1612,16 +1652,34 @@ public class MRotation {
 	public static double distance(MRotation r1,MRotation r2) {
 		return r1.applyInverseTo(r2).getAngle();
 	}
+	
+	/**
+	 * returns either the input quaternion or its conjugate, whichever is closest in euclidean distance.
+	 * @param in
+	 * @return
+	 */
+	public MRotation getAbsoluteClosest(MRotation in) {
+		MRotation opp = in.copy().multiply(-1d);
+		double inDot = this.dot(in);
+		double oppDot = this.dot(opp);
+		if(inDot > oppDot) return in;
+		else return opp;
+	}
 
-
+	public double dot(MRotation other) {
+		return q0 * other.q0 + q1 * other.q1 + q2 * other.q2 + q3 * other.q3;
+	}
+ 
 	public boolean equalTo(MRotation m) {
 		return distance(this, m) < MathUtils.DOUBLE_ROUNDING_ERROR;
 	}
 
 	public String toString() {
-		String result = "axis: " + getAxis().toVec3f().toString();
-		result += "\n angle : " + (float)Math.toDegrees(getAngle()) + " degrees " ;
-		result += "\n angle : " + (float)getAngle() + " radians " ;
+		
+		String result = "\naxis: " + getAxis().toVec3f().toString();
+		result += "\n deg (Rot) : " + String.format("%." + 4 + "f", (float)Math.toDegrees(getFullAngle())) + " degrees " ;
+		result += "\n deg (Ort): " + String.format("%." + 4 + "f", (float)Math.toDegrees(getAngle())) + " degrees " ;
+		result += "\n rad (Ort): " + String.format("%." + 4 + "f",(float)getAngle()) + " radians " ;
 		return result;
 	}
 }

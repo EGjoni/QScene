@@ -8,6 +8,15 @@ public class CartesianAxes extends AbstractAxes {
 	public CartesianAxes(AbstractBasis globalBasis, AbstractAxes parent) {
 		super(globalBasis, parent);
 	}
+	/**creates an unparented identity transform***/
+	public CartesianAxes() {
+		this(	new SGVec_3d(0,0,0),
+				new SGVec_3d(1,0,0),
+				new SGVec_3d(0,1,0),
+				new SGVec_3d(0,0,1),
+				null
+		);
+	}
 	public CartesianAxes(Vec3d<?> origin, Vec3d<?> inX, Vec3d<?> inY, Vec3d<?> inZ,
 			AbstractAxes parent) {
 		super(origin, inX, inY, inZ, parent, true);

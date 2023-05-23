@@ -38,6 +38,10 @@ public class Rot {
 	public Rot(MRotation r) {
 		this.rotation = new MRotation(r.getQ0(), r.getQ1(), r.getQ2(), r.getQ3());
 	}
+	
+	public Rot(double[] quatVals) { 
+		this.rotation = new MRotation(quatVals);
+	}
 
 	public <V extends Vec3d<?>> Rot( V v1, V v2, V u1, V u2) {
 		//try {
@@ -284,6 +288,10 @@ public class Rot {
 	 */
 	public Rot(double amount, Rot v1, Rot v2) {
 		rotation = slerp(amount, v1.rotation, v2.rotation);
+	}
+	
+	public Rot getInverse() {
+		return new Rot(this.rotation.getInverse());
 	}
 
 	/** Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the

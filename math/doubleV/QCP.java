@@ -178,7 +178,7 @@ public class QCP {
 		targetCenter.set(0,0,0);
 
 		if (translate) {
-			moveToWeightedCenter(this.moved, null, movedCenter);
+			moveToWeightedCenter(this.moved, weight, movedCenter);
 			wsum = 0d; // set wsum to 0 so we don't double up.
 			moveToWeightedCenter(this.target, weight, targetCenter);
 			translate(movedCenter.multCopy(-1d), this.moved);
@@ -233,8 +233,7 @@ public class QCP {
 	 *
 	 * @param fixed
 	 * @param moved
-	 * @param weight
-	 *            array of weigths for each equivalent point position
+	 * @param weight array of weigths for each equivalent point position
 	 * @return
 	 */
 	public <V extends Vec3f<?>> Rot weightedSuperpose( V[] moved, V[] target, float[] weight, boolean translate) {
@@ -252,11 +251,9 @@ public class QCP {
 			targetd[i] = new SGVec_3d((double)target[i].x, (double)target[i].y, (double)target[i].z);
 		}
 		
-		
 		set(movedd, targetd, weightd, translate);
 		Rot result = getRotation();
-		//transformation.set(rotmat);
-		return result;//transformation;
+		return result;
 	}
 
 
