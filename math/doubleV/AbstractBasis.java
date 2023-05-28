@@ -186,17 +186,56 @@ public abstract class AbstractBasis {
 		return rotation;*/
 	}
 	
+	/**
+	 * sets globalOutput such that the result of 
+	 * this.getLocalOf(globalOutput) == localInput. 
+	 * 
+	 * @param localInput
+	 * @param globalOutput
+	 */
+	public <T extends AbstractBasis> void applyTo(T localInput, T globalOutput) {		
+		this.rotation.applyTo(localInput.rotation, globalOutput.rotation);
+		this.applyTo(localInput.translate, globalOutput.translate);		
+		globalOutput.refreshPrecomputed();
+	}
 	
-	public Rot getLocalOfRotation(Rot inRot) {		
+	
+	public <V extends Vec3d<?>> void applyTo(V input, V output) {
+		try {
+		rotation.applyTo(input, output);
+		output.add(this.translate);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+ 	}
+	
+	public void applyTo(Rot input, Rot output) {
+		try {
+		rotation.applyTo(input, output);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+ 	}
+	
+	/**takes a worldspace rotation and returns the local space rotation which would have the same worldspace result if applied to a child of this transform*/
+	public Rot getLocalizedRotation(Rot inRot) {	
 			Rot resultNew =  inverseRotation.applyTo(inRot).applyTo(rotation);						
 			return resultNew;			
+	}
+	
+	/**takes a local space rotation as would be applied to a child of this transform and returns the worldspace rotation which would have the same worldspace result to that child*/
+	public Rot getGlobalizedRotation(Rot inRot) {	
+			Rot resultNew =  rotation.applyTo(inRot);
+			return resultNew;
 	}
 	
 	public <B extends AbstractBasis> void setToLocalOf(B global_input, B local_output) {
 		local_output.translate = this.getLocalOf(global_input.translate);
 		inverseRotation.applyTo(global_input.rotation, local_output.rotation); 
-		
 		local_output.refreshPrecomputed();
+	}
+	public <B extends AbstractBasis> void setToLocalOf(Rot global_input, Rot local_output) {
+		inverseRotation.applyTo(global_input, local_output); 
 	}
 	
 	public void refreshPrecomputed() {
@@ -254,30 +293,6 @@ public abstract class AbstractBasis {
 	public <V extends Vec3d<?>> void setToShearZBase(V vec){
 		vec.set(zBase);
 	}
-	
-	
-	/**
-	 * sets globalOutput such that the result of 
-	 * this.getLocalOf(globalOutput) == localInput. 
-	 * 
-	 * @param localInput
-	 * @param globalOutput
-	 */
-	public <T extends AbstractBasis> void setToGlobalOf(T localInput, T globalOutput) {		
-		this.rotation.applyTo(localInput.rotation, globalOutput.rotation);
-		this.setToGlobalOf(localInput.translate, globalOutput.translate);		
-		globalOutput.refreshPrecomputed();
-	}
-	
-	
-	public <V extends Vec3d<?>> void setToGlobalOf(V input, V output) {
-		try {
-		rotation.applyTo(input, output);
-		output.add(this.translate);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
- 	}
 	
 	
 	public <V extends Vec3d<?>> void translateBy(V transBy) {

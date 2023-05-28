@@ -8,5 +8,4 @@ public interface Vec<T extends Vec<T>>{
 	public double getYd();
 	public double getZd();
 	public T copy();
-	public double mag();
 }

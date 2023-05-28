@@ -126,7 +126,7 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 				globalMBasis.adoptValues(this.localMBasis);
 			} else {
 				getParentAxes().updateGlobal(false);				
-				getParentAxes().getGlobalMBasis().setToGlobalOf(this.localMBasis, this.globalMBasis);			
+				getParentAxes().getGlobalMBasis().applyTo(this.localMBasis, this.globalMBasis);			
 			}
 		}
 		dirty = false;
@@ -301,7 +301,7 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 	 */
 	public Vec3d<?> setToGlobalOf(Vec3d<?> in) {
 		this.updateGlobal();
-		getGlobalMBasis().setToGlobalOf(in, in);
+		getGlobalMBasis().applyTo(in, in);
 		return in;
 	}
 
@@ -311,7 +311,7 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 	 */
 	public <V extends Vec3d<?>> void setToGlobalOf(V input, V output) {
 		this.updateGlobal();
-		getGlobalMBasis().setToGlobalOf(input, output);		
+		getGlobalMBasis().applyTo(input, output);		
 	}
 
 	
@@ -526,7 +526,7 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 	public void rotateBy(MRotation apply) {
 		this.updateGlobal();		
 		if(parent != null) {		
-			Rot newRot = this.getParentAxes().getGlobalMBasis().getLocalOfRotation(new Rot(apply));
+			Rot newRot = this.getParentAxes().getGlobalMBasis().getLocalizedRotation(new Rot(apply));
 			this.getLocalMBasis().rotateBy(newRot);
 		} else {
 			this.getLocalMBasis().rotateBy(new Rot(apply));
@@ -547,7 +547,7 @@ public abstract class AbstractAxes implements AxisDependency, Saveable {
 
 		this.updateGlobal();		
 		if(this.getParentAxes() != null) {
-			Rot newRot = this.getParentAxes().getGlobalMBasis().getLocalOfRotation(apply);
+			Rot newRot = this.getParentAxes().getGlobalMBasis().getLocalizedRotation(apply);
 			this.getLocalMBasis().rotateBy(newRot);
 		} else {
 			this.getLocalMBasis().rotateBy(apply);
